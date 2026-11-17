@@ -169,7 +169,7 @@ export async function coachRoutes(app: FastifyInstance): Promise<void> {
     const r = await db.query<{ type: ReviewItemDto['type']; id: string; athlete_id: string; athlete_name: string; at: Date; title: string; detail: string; exercise_key: string | null }>(
       `select 'check' as type, c.id, u.id as athlete_id, u.display_name as athlete_name, c.created_at as at,
               'Check del ' || to_char(c.check_date, 'DD/MM') as title,
-              concat_ws(' · ', 'Peso ' || c.weight_kg || ' kg', case when c.share_photos then 'foto condivise' else 'foto private' end) as detail,
+              concat_ws(' · ', 'Peso ' || replace(trim_scale(c.weight_kg)::text, '.', ',') || ' kg', case when c.share_photos then 'foto condivise' else 'foto private' end) as detail,
               null as exercise_key
          from body_checks c join coach_links l on l.athlete_id = c.athlete_id and l.coach_id = $1 and l.ended_at is null
          join users u on u.id = c.athlete_id
