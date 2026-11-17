@@ -93,8 +93,23 @@ function scheduleRetry(): void {
   backoff = Math.min(backoff * 2, 60_000);
 }
 
+let rerun = false;
+
+/**
+ * Single-flight con ripetizione: un'operazione accodata mentre una sincronizzazione sta terminando
+ * non deve restare in attesa del timer successivo (wakeup perso), quindi si esegue un altro giro.
+ */
 export function flush(): Promise<void> {
-  flushing ??= doFlush().finally(() => {
+  if (flushing) {
+    rerun = true;
+    return flushing;
+  }
+  flushing = (async () => {
+    do {
+      rerun = false;
+      await doFlush();
+    } while (rerun && currentUser);
+  })().finally(() => {
     flushing = null;
   });
   return flushing;

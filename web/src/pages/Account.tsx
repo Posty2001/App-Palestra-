@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { errorMessage, post } from '../lib/api';
 import { useAuth, useUser } from '../lib/auth';
+import { getInactivityDays, setInactivityDays } from '../lib/prefs';
 import { ErrorText, TopBar } from '../components/ui';
 
 export function AccountPage() {
@@ -11,6 +12,7 @@ export function AccountPage() {
   const [msg, setMsg] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(0);
+  const [days, setDays] = useState(() => getInactivityDays(user.id));
 
   async function changePw(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -34,19 +36,30 @@ export function AccountPage() {
   return (
     <>
       <TopBar title="Account" />
-      <main className="page stack">
+      <main className="page">
         <div className="card">
-          <strong>{user.displayName}</strong><br /><small>{user.email}{user.isDemo ? ' · account di prova' : ''}</small>
-          {user.coach && <p>Coach: {user.coach.displayName}</p>}
+          <strong style={{ fontSize: 18 }}>{user.displayName}</strong>
+          <p className="muted">{user.email}{user.isDemo ? ' · account di prova' : ''}</p>
+          {user.coach && <p style={{ marginTop: 6 }}>Coach: {user.coach.displayName}</p>}
         </div>
+        {user.role === 'coach' && (
+          <form className="card stack" onSubmit={(e) => { e.preventDefault(); setInactivityDays(user.id, days); setDays(getInactivityDays(user.id)); setMsg('Soglia di inattività salvata su questo dispositivo.'); }}>
+            <strong>Impostazioni coach</strong>
+            <label>Atleta inattivo dopo (giorni senza allenamenti salvati)
+              <input type="number" min={1} max={90} inputMode="numeric" value={days} onChange={(e) => setDays(Number(e.target.value))} data-testid="inactivity-days" />
+            </label>
+            <small>Salvata su questo dispositivo. Predefinita: 7 giorni.</small>
+            <button className="small-btn">Salva soglia</button>
+          </form>
+        )}
         <form className="card stack" onSubmit={changePw}>
           <strong>Cambia password</strong>
           <label>Password attuale<input name="current" type="password" required autoComplete="current-password" /></label>
           <label>Nuova password (min 10)<input name="next" type="password" minLength={10} required autoComplete="new-password" /></label>
-          <ErrorText error={error} />
-          {msg && <p className="ok">{msg}</p>}
-          <button>Aggiorna password</button>
+          <button className="small-btn">Aggiorna password</button>
         </form>
+        <ErrorText error={error} />
+        {msg && <p className="ok" role="status">{msg}</p>}
         {pending > 0 ? (
           <div className="card stack">
             <p className="warn">Hai {pending} modifiche non ancora sincronizzate. Uscendo ora andranno perse.</p>

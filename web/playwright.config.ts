@@ -11,7 +11,7 @@ export default defineConfig({
   expect: { timeout: 10_000 },
   reporter: [['list']],
   use: { baseURL: 'http://127.0.0.1:3100', trace: 'off', screenshot: 'only-on-failure' },
-  projects: [{ name: 'iPhone 13', use: { ...devices['iPhone 13'], browserName: 'chromium' } }],
+  projects: [{ name: 'iPhone 13', use: { ...devices['iPhone 13'], browserName: 'chromium', locale: 'it-IT', timezoneId: 'Europe/Rome' } }],
   webServer: {
     command: 'npx tsx ../server/src/e2eServer.ts',
     url: 'http://127.0.0.1:3100/api/health',

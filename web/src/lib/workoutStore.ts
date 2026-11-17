@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'react';
 import { exerciseKey, type ExerciseState, type ProgramSummaryDto, type SetDto, type SetInput, type TodayBundleDto, type WorkoutDto } from '@palestra/shared';
 import { uuid } from './api';
 import { atomicWrite, kvGet, kvSet } from './idb';
+import type { RestTimer } from './rest';
 import { newOp, notifyEnqueued, onOpSettled, pendingOps } from './sync';
 import type { OutboxOp } from './idb';
 
@@ -10,11 +11,7 @@ import type { OutboxOp } from './idb';
  * ogni modifica è accodata come operazione idempotente verso il server.
  */
 
-export interface RestTimer {
-  startedAt: number; // epoch ms: il tempo reale trascorso sopravvive a cambi schermata e riaperture
-  durationSec: number;
-  label: string;
-}
+export type { RestTimer } from './rest';
 
 export interface LocalWorkout extends WorkoutDto {
   rest: RestTimer | null;
@@ -38,9 +35,10 @@ function emit(): void {
  */
 async function commit(next: LocalWorkout | null, op?: Omit<OutboxOp, 'seq' | 'createdAt' | 'attempts' | 'userId'>): Promise<void> {
   if (userId) await atomicWrite(key(userId), next, op ? newOp(op) : null);
+  // Prima il contatore della coda (stato di sync sempre veritiero), poi la UI.
+  if (op) await notifyEnqueued();
   current = next;
   emit();
-  if (op) await notifyEnqueued();
 }
 
 function update(next: LocalWorkout | null): Promise<void> {

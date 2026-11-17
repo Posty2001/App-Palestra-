@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-import { POSE_LABEL, POSES, weeklyAverages, type CheckDto, type Pose, type WeightDto } from '@palestra/shared';
+import { POSE_LABEL, POSES, type CheckDto, type Pose } from '@palestra/shared';
 import { api, del, errorMessage, get, patch, put, uuid } from '../lib/api';
 import { fmtDate, fmtKg, fmtNum, fmtShort, parseNum, todayLocal } from '../lib/format';
 import { useAsync } from '../lib/hooks';
-import { ErrorText, Segmented, Sheet, TopBar } from '../components/ui';
+import { Empty, ErrorText, Loading, Segmented, Sheet, TopBar } from '../components/ui';
+import { Icon } from '../components/icons';
 
-const MEASURES: [keyof CheckDto, string, string][] = [
+export const MEASURES: [keyof CheckDto, string, string][] = [
   ['weightKg', 'Peso', ' kg'],
   ['bicepsCm', 'Bicipite', ' cm'],
   ['chestCm', 'Petto', ' cm'],
@@ -17,58 +18,59 @@ const MEASURES: [keyof CheckDto, string, string][] = [
 export function ChecksPage() {
   const nav = useNavigate();
   const { data: checks, error, reload } = useAsync(() => get<CheckDto[]>('/checks'), []);
-  const { data: weights, reload: reloadW } = useAsync(() => get<WeightDto[]>('/weights'), []);
   const [weightOpen, setWeightOpen] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
   return (
     <>
-      <TopBar title="Check fisico" />
-      <main className="page stack">
-        <button className="primary" onClick={() => nav('/check/nuovo')}>Nuovo check</button>
-        <button onClick={() => setWeightOpen(true)}>Aggiungi peso</button>
+      <TopBar title="Check fisico" action={<button type="button" className="small-btn" onClick={() => setWeightOpen(true)} data-testid="add-weight">+ Peso</button>} />
+      <main className="page">
+        <button className="primary big" onClick={() => nav('/check/nuovo')}>Nuovo check</button>
+        {msg && <p className="ok" role="status">{msg}</p>}
         <ErrorText error={error} />
+        {!checks && !error && <Loading />}
         {checks && checks.length >= 1 && <CompareView checks={checks} />}
-        {weights && weights.length > 0 && <WeightCard weights={weights} />}
         {checks && <CheckList checks={checks} base="/check" />}
       </main>
-      <AddWeightSheet open={weightOpen} onClose={() => setWeightOpen(false)} onSaved={() => { reloadW(); reload(); }} />
+      <AddWeightSheet open={weightOpen} onClose={() => setWeightOpen(false)} onSaved={() => { reload(); setMsg('Peso salvato'); }} />
     </>
   );
 }
 
 export function CheckList({ checks, base }: { checks: CheckDto[]; base: string }) {
-  if (!checks.length) return <p className="empty">Nessun check ancora.</p>;
+  if (!checks.length) return <Empty>Nessun check ancora. Il primo check sarà il punto di partenza dei confronti.</Empty>;
   return (
     <section className="stack">
-      <h3>Tutti i check</h3>
+      <h3 className="title-n">Tutti i check</h3>
       {checks.map((c) => (
-        <Link key={c.id} to={`${base}/${c.id}`} className="card row" style={{ color: 'inherit', textDecoration: 'none' }} data-testid="check-item">
-          <span><strong>{fmtDate(c.checkDate)}</strong><br /><small>{fmtKg(c.weightKg)} · {c.photoCount} foto · {c.sharePhotos ? 'foto condivise' : 'foto private'}</small></span>
-          {c.feedback.length > 0 ? <span className="chip red">Feedback</span> : <span aria-hidden="true">›</span>}
+        <Link key={c.id} to={`${base}/${c.id}`} className="link-card" data-testid="check-item">
+          <span className="spacer"><strong>{fmtShort(c.checkDate)} · {fmtKg(c.weightKg)}</strong>
+            <small style={{ display: 'flex', alignItems: 'center', gap: 4 }}>{!c.sharePhotos && <Icon name="lock" size={14} />}{c.photoCount} foto · {c.sharePhotos ? 'condivise col coach' : 'private'}</small></span>
+          {c.feedback.length > 0 && <span className="tag hot">Feedback</span>}
+          <Icon name="right" className="chev" />
         </Link>
       ))}
     </section>
   );
 }
 
-/** Confronto: due date (di default primo e ultimo check), foto grandi della stessa posa affiancate, poi misure e differenze. */
-export function CompareView({ checks }: { checks: CheckDto[] }) {
+/** Confronto: due date (di default primo e ultimo check), stessa posa affiancata, poi misure e differenze. */
+export function CompareView({ checks, initialA, initialB }: { checks: CheckDto[]; initialA?: string; initialB?: string }) {
   const sorted = useMemo(() => [...checks].sort((a, b) => a.checkDate.localeCompare(b.checkDate)), [checks]);
-  const [aId, setA] = useState(sorted[0]?.id ?? '');
-  const [bId, setB] = useState(sorted[sorted.length - 1]?.id ?? '');
+  const [aId, setA] = useState(initialA ?? sorted[0]?.id ?? '');
+  const [bId, setB] = useState(initialB ?? sorted[sorted.length - 1]?.id ?? '');
   const [pose, setPose] = useState<Pose>('front');
   useEffect(() => {
-    setA(sorted[0]?.id ?? '');
-    setB(sorted[sorted.length - 1]?.id ?? '');
-  }, [sorted]);
+    setA(initialA ?? sorted[0]?.id ?? '');
+    setB(initialB ?? sorted[sorted.length - 1]?.id ?? '');
+  }, [sorted, initialA, initialB]);
   const a = sorted.find((c) => c.id === aId);
   const b = sorted.find((c) => c.id === bId);
   if (!a || !b) return null;
   return (
     <section className="card stack" data-testid="compare">
-      <strong>Confronto</strong>
       <div className="grid2">
-        <label>Data A<select value={aId} onChange={(e) => setA(e.target.value)}>{sorted.map((c) => <option key={c.id} value={c.id}>{fmtDate(c.checkDate)}</option>)}</select></label>
-        <label>Data B<select value={bId} onChange={(e) => setB(e.target.value)}>{sorted.map((c) => <option key={c.id} value={c.id}>{fmtDate(c.checkDate)}</option>)}</select></label>
+        <label>Da<select value={aId} onChange={(e) => setA(e.target.value)}>{sorted.map((c) => <option key={c.id} value={c.id}>{fmtDate(c.checkDate)}</option>)}</select></label>
+        <label>A<select value={bId} onChange={(e) => setB(e.target.value)}>{sorted.map((c) => <option key={c.id} value={c.id}>{fmtDate(c.checkDate)}</option>)}</select></label>
       </div>
       <Segmented label="Posa" value={pose} onChange={setPose} options={POSES.map((p) => [p, POSE_LABEL[p]] as [Pose, string])} />
       <div className="photos2">
@@ -77,36 +79,24 @@ export function CompareView({ checks }: { checks: CheckDto[] }) {
           return ph ? (
             <img key={i} className="photo" src={`/api/photos/${ph.id}`} alt={`${POSE_LABEL[pose]} ${fmtDate(c.checkDate)}`} loading="lazy" />
           ) : (
-            <div key={i} className="photo-empty">{c.photoCount ? 'Foto non condivisa' : 'Nessuna foto'}</div>
+            <div key={i} className="photo-empty">{c.photoCount ? 'Foto non condivisa' : 'Nessuna foto'}<br />{fmtShort(c.checkDate)}</div>
           );
         })}
       </div>
       <table>
-        <thead><tr><th /><th>{fmtShort(a.checkDate)}</th><th>{fmtShort(b.checkDate)}</th><th>Diff.</th></tr></thead>
+        <thead><tr><th /><th>{fmtShort(a.checkDate)}</th><th>{fmtShort(b.checkDate)}</th><th style={{ textAlign: 'right' }}>Diff.</th></tr></thead>
         <tbody>
           {MEASURES.map(([k, label, unit]) => {
             const va = a[k] as number | null;
             const vb = b[k] as number | null;
             const d = va !== null && vb !== null ? Math.round((vb - va) * 10) / 10 : null;
             return (
-              <tr key={k}><td>{label}</td><td>{fmtNum(va, unit)}</td><td>{fmtNum(vb, unit)}</td>
-                <td className="num">{d === null ? '—' : `${d > 0 ? '+' : ''}${d.toLocaleString('it-IT')}${unit}`}</td></tr>
+              <tr key={k}><td className="muted">{label}</td><td>{fmtNum(va)}</td><td>{fmtNum(vb)}</td>
+                <td style={{ textAlign: 'right', fontWeight: 700 }}>{d === null ? '—' : `${d > 0 ? '+' : ''}${d.toLocaleString('it-IT')}${unit}`}</td></tr>
             );
           })}
         </tbody>
       </table>
-    </section>
-  );
-}
-
-export function WeightCard({ weights }: { weights: WeightDto[] }) {
-  const weeks = weeklyAverages(weights);
-  return (
-    <section className="card">
-      <strong>Peso · media settimanale</strong>
-      <table><tbody>
-        {weeks.slice(0, 6).map((w) => <tr key={w.weekStart}><td>Sett. del {fmtShort(w.weekStart)}</td><td className="num">{fmtKg(w.avg)}</td><td><small>{w.n} rilevaz.</small></td></tr>)}
-      </tbody></table>
     </section>
   );
 }
@@ -132,7 +122,7 @@ function AddWeightSheet({ open, onClose, onSaved }: { open: boolean; onClose: ()
         <label>Data<input type="date" name="date" defaultValue={todayLocal()} max={todayLocal()} required /></label>
         <label>Peso (kg)<input name="weight" inputMode="decimal" required /></label>
         <ErrorText error={error} />
-        <button className="primary">Salva peso</button>
+        <button className="primary big">Salva peso</button>
       </form>
     </Sheet>
   );
@@ -154,7 +144,7 @@ export function CheckFormPage() {
   useEffect(() => {
     if (existing) setShare(existing.sharePhotos);
   }, [existing]);
-  if (editing && !existing) return null;
+  if (editing && !existing) return <><TopBar title="Modifica check" /><main className="page"><Loading /></main></>;
 
   async function submit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -186,10 +176,10 @@ export function CheckFormPage() {
 
   const count = Object.keys(files).length + (existing?.photoCount ?? 0);
   return (
-    <>
+    <div style={{ paddingBottom: 110 }}>
       <TopBar title={editing ? 'Modifica check' : 'Nuovo check'} />
       <main className="page">
-        <form className="stack" onSubmit={submit}>
+        <form id="check-form" className="stack" onSubmit={submit}>
           <label>Data (puoi retrodatare)<input type="date" name="date" required max={todayLocal()} defaultValue={existing?.checkDate ?? todayLocal()} /></label>
           <div className="grid2">
             {MEASURES.map(([k, label, unit]) => (
@@ -199,8 +189,8 @@ export function CheckFormPage() {
           <label>Nota<textarea name="note" maxLength={2000} defaultValue={existing?.note ?? ''} /></label>
           <div className="grid3">
             {POSES.map((p) => (
-              <label key={p} className="btn" style={{ flexDirection: 'column', fontSize: 13 }}>
-                {POSE_LABEL[p]}{files[p] ? ' ✓' : existing?.photos.some((x) => x.pose === p) ? ' (presente)' : ''}
+              <label key={p} className="photo-empty" style={{ cursor: 'pointer', color: files[p] ? 'var(--ok)' : 'var(--sub)', borderStyle: files[p] ? 'solid' : 'dashed', borderColor: files[p] ? 'var(--ok)' : undefined }}>
+                <span><Icon name={files[p] ? 'check' : 'camera'} /><br />{POSE_LABEL[p]}{!files[p] && existing?.photos.some((x) => x.pose === p) ? <><br />(presente)</> : null}</span>
                 <input type="file" accept="image/*" hidden data-testid={`photo-${p}`} onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) setFiles((cur) => ({ ...cur, [p]: file }));
@@ -208,16 +198,16 @@ export function CheckFormPage() {
               </label>
             ))}
           </div>
-          <div className="card">
+          <div className="card stack">
             <label className="check-label"><input type="checkbox" checked={share} onChange={(e) => setShare(e.target.checked)} data-testid="share-photos" /> Condividi le foto di questo check con il coach</label>
             <small data-testid="share-preview">{shareText(share, count)}</small>
           </div>
           <ErrorText error={error} />
           {busy && <p className="muted" role="status">{busy}</p>}
-          <button className="primary" disabled={!!busy} data-testid="save-check">Salva check</button>
         </form>
       </main>
-    </>
+      <div className="dock"><div className="inner"><button form="check-form" className="primary big" disabled={!!busy} data-testid="save-check">Salva check</button></div></div>
+    </div>
   );
 }
 
@@ -227,7 +217,7 @@ export function CheckDetailPage() {
   const { data: c, error, setData } = useAsync(() => get<CheckDto>(`/checks/${checkId}`), [checkId]);
   const [confirmDel, setConfirmDel] = useState(false);
   const [err, setErr] = useState<string | null>(null);
-  if (!c) return <><TopBar title="Check" /><main className="page"><ErrorText error={error} /></main></>;
+  if (!c) return <><TopBar title="Check" /><main className="page">{error ? <ErrorText error={error} /> : <Loading />}</main></>;
 
   async function run(fn: () => Promise<void>) {
     setErr(null);
@@ -240,29 +230,33 @@ export function CheckDetailPage() {
 
   return (
     <>
-      <TopBar title={`Check ${fmtShort(c.checkDate)}`} />
-      <main className="page stack">
-        {c.feedback.map((f) => (
-          <div key={f.id} className="feedback" data-testid="check-feedback"><small>{f.coachName} · {fmtShort(f.createdAt)}</small><br />{f.body}</div>
-        ))}
-        <div className="card">
+      <TopBar title={`Check ${fmtShort(c.checkDate)}`} action={<Link to="/check" className="btn icon-btn" aria-label="Torna ai check"><Icon name="left" /></Link>} />
+      <main className="page">
+        {c.feedback.length > 0 && (
+          <div className="thread">
+            {c.feedback.map((f) => (
+              <div key={f.id} className="bubble in note" data-testid="check-feedback"><span className="meta" style={{ color: 'var(--pri-ink)' }}>{f.coachName} · {fmtShort(f.createdAt)}</span>{f.body}</div>
+            ))}
+          </div>
+        )}
+        <div className="card tight">
           <table><tbody>
-            {MEASURES.map(([k, label, unit]) => <tr key={k}><td>{label}</td><td className="num">{fmtNum(c[k] as number | null, unit)}</td></tr>)}
+            {MEASURES.map(([k, label, unit]) => <tr key={k}><td className="muted">{label}</td><td style={{ textAlign: 'right', fontWeight: 600 }}>{fmtNum(c[k] as number | null, unit)}</td></tr>)}
           </tbody></table>
-          {c.note && <p>{c.note}</p>}
+          {c.note && <p style={{ padding: '8px 0 12px' }}>{c.note}</p>}
         </div>
-        <div className="grid3">
+        <div className="photos3">
           {POSES.map((p) => {
             const ph = c.photos.find((x) => x.pose === p);
             return (
               <div key={p} className="stack" style={{ gap: 4 }}>
                 {ph ? <img className="photo" src={`/api/photos/${ph.id}`} alt={POSE_LABEL[p]} /> : <div className="photo-empty">{POSE_LABEL[p]}</div>}
-                {ph && <button className="small-btn quiet" onClick={() => void run(async () => setData(await del<CheckDto>(`/checks/${c.id}/photos/${p}`)))} data-testid={`delete-photo-${p}`}>Elimina foto</button>}
+                {ph && <button className="quiet small-btn" onClick={() => void run(async () => setData(await del<CheckDto>(`/checks/${c.id}/photos/${p}`)))} data-testid={`delete-photo-${p}`}>Elimina</button>}
               </div>
             );
           })}
         </div>
-        <div className="card">
+        <div className="card stack">
           <label className="check-label">
             <input type="checkbox" checked={c.sharePhotos} data-testid="share-toggle" onChange={(e) => {
               // Aggiornamento ottimistico: il tocco ha effetto subito; se il server rifiuta si torna allo stato precedente.
@@ -272,9 +266,9 @@ export function CheckDetailPage() {
               void run(async () => {
                 try {
                   setData(await patch<CheckDto>(`/checks/${c.id}/sharing`, { sharePhotos: next }));
-                } catch (err) {
+                } catch (err2) {
                   setData(prev);
-                  throw err;
+                  throw err2;
                 }
               });
             }} />

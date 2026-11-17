@@ -126,6 +126,19 @@ describe('sedute', () => {
     expect(done.athleteNote).toBeNull();
   });
 
+  it('annullare una serie la elimina (DELETE idempotente, solo sulla propria seduta)', async () => {
+    const p = (await w.a.req('GET', `/api/programs/${program.id}`)).body as ProgramDetailDto;
+    const id = uuid();
+    expect200(await w.a.req('PUT', `/api/workouts/${id}`, { programId: p.id, programVersionId: p.currentVersionId, dayIndex: 0, startedAt: new Date().toISOString() }));
+    const sid = uuid();
+    expect200(await w.a.req('PUT', `/api/workouts/${id}/sets/${sid}`, pendulumSet(id, 'x', 0, 50, 8)));
+    expect((await w.b.req('DELETE', `/api/workouts/${id}/sets/${sid}`)).status).toBe(404);
+    expect200(await w.a.req('DELETE', `/api/workouts/${id}/sets/${sid}`));
+    expect200(await w.a.req('DELETE', `/api/workouts/${id}/sets/${sid}`));
+    expect((await ctx.db.query('select count(*)::int n from workout_sets where workout_id = $1', [id])).rows[0].n).toBe(0);
+    expect200(await w.a.req('POST', `/api/workouts/${id}/discard`));
+  });
+
   it('validazione input della serie', async () => {
     const p = (await w.b.req('GET', '/api/programs')).body;
     expect(p).toEqual([]);

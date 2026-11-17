@@ -2,7 +2,7 @@
 
 PWA mobile-first (iPhone) per coach e atleti: inviti personali, schede versionate e assegnabili, sedute registrate anche offline, progressi, check fisico con foto private, feedback del coach.
 
-Specifica di riferimento: [`docs/LEGGIMI_PER_CLAUDE.md`](docs/LEGGIMI_PER_CLAUDE.md) · Esito delle prove: [`docs/ESITO_PROVE.md`](docs/ESITO_PROVE.md)
+Specifica di riferimento: [`docs/LEGGIMI_PER_CLAUDE.md`](docs/LEGGIMI_PER_CLAUDE.md) · Esito delle prove: [`docs/ESITO_PROVE.md`](docs/ESITO_PROVE.md) · Restyling 2.0: [`docs/RESTYLING_2.0.md`](docs/RESTYLING_2.0.md) · Screenshot: [`docs/screenshots/`](docs/screenshots/)
 
 ## Architettura
 
@@ -58,5 +58,6 @@ Requisiti: HTTPS (reverse proxy con `TRUST_PROXY=true`), Postgres gestito con ba
 ```bash
 npm run typecheck      # shared + server + web, strict
 npm test               # unit (shared) + integrazione API su Postgres reale (TEST_DATABASE_URL, viene azzerato)
-npm run test:e2e       # Playwright, viewport iPhone 13, server e DB di test dedicati
+npm run test:e2e       # Playwright, viewport iPhone 13 (locale it-IT), server e DB di test dedicati: 10 flussi
+# screenshot reali: E2E_SHOTS_DIR=/percorso npm run test:e2e
 ```

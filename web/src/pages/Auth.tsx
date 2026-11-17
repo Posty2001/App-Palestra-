@@ -3,12 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import type { InviteStatus, UserDto } from '@palestra/shared';
 import { errorMessage, get, post } from '../lib/api';
 import { useAuth } from '../lib/auth';
+import { getLastMode } from '../lib/prefs';
 import { ErrorText, Segmented } from '../components/ui';
 
 function Shell({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <main className="center-page">
-      <div className="brand">APP PALESTRA</div>
+      <p className="brand">APP PALESTRA</p>
       <h1>{title}</h1>
       {children}
     </main>
@@ -28,7 +29,7 @@ export function LoginPage() {
     try {
       const u = await post<UserDto>('/auth/login', { email: f.get('email'), password: f.get('password') });
       await signedIn(u);
-      nav(u.role === 'coach' ? '/atleti' : '/', { replace: true });
+      nav(u.role === 'coach' && getLastMode(u.id) === 'coach' ? '/coach' : '/', { replace: true });
     } catch (err) {
       setError(errorMessage(err));
     } finally {

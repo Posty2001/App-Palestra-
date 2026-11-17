@@ -1,19 +1,20 @@
-import { Navigate, Route, Routes, useLocation, Link } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './lib/auth';
+import { getLastMode } from './lib/prefs';
 import { TabBar } from './components/ui';
 import { ForgotPage, InvitePage, LoginPage, ResetPage } from './pages/Auth';
 import { TodayPage } from './pages/Today';
 import { WorkoutPage } from './pages/Workout';
-import { EditProgramPage, NewProgramPage, ProgramsPage } from './pages/Programs';
-import { ProgressPage } from './pages/Progress';
+import { CoachProgramsPage, EditProgramPage, NewProgramPage, ProgramsPage } from './pages/Programs';
+import { CoachProgressPage, ProgressPage } from './pages/Progress';
 import { CheckDetailPage, CheckFormPage, ChecksPage } from './pages/Checks';
-import { AthleteProfilePage, AthletesPage } from './pages/Coach';
+import { AthleteProfilePage, AthletesPage, CheckReviewPage, CoachChecksPage, DashboardPage, ExerciseThreadPage } from './pages/Coach';
 import { AccountPage } from './pages/Account';
 
 export function App() {
   const { user, loading } = useAuth();
   const loc = useLocation();
-  if (loading) return <main className="center-page"><p className="muted">Carico…</p></main>;
+  if (loading) return <main className="center-page"><div className="skeleton" /><div className="skeleton" style={{ width: '60%' }} /></main>;
 
   if (!user) {
     return (
@@ -27,10 +28,12 @@ export function App() {
     );
   }
   const coach = user.role === 'coach';
+  const home = coach && getLastMode(user.id) === 'coach' ? '/coach' : '/';
   const inSession = loc.pathname === '/seduta';
   return (
-    <div className="app">
+    <div className={inSession ? '' : 'app'}>
       <Routes>
+        {/* Il mio allenamento / atleta */}
         <Route path="/" element={<TodayPage />} />
         <Route path="/seduta" element={<WorkoutPage />} />
         <Route path="/scheda" element={<ProgramsPage />} />
@@ -44,25 +47,30 @@ export function App() {
         <Route path="/check/:checkId/modifica" element={<CheckFormPage />} />
         <Route path="/account" element={<AccountPage />} />
         <Route path="/invito" element={<InvitePage />} />
+        {/* Area coach */}
         {coach && (
           <>
+            <Route path="/coach" element={<DashboardPage />} />
+            <Route path="/coach/progressi" element={<CoachProgressPage />} />
+            <Route path="/coach/check" element={<CoachChecksPage />} />
+            <Route path="/schede" element={<CoachProgramsPage />} />
+            <Route path="/schede/nuova" element={<NewProgramPage mode="manual" />} />
+            <Route path="/schede/importa" element={<NewProgramPage mode="pdf" />} />
+            <Route path="/schede/:programId/modifica" element={<EditProgramPage />} />
             <Route path="/atleti" element={<AthletesPage />} />
             <Route path="/atleti/:athleteId" element={<AthleteProfilePage />} />
+            <Route path="/atleti/:athleteId/esercizio/:key" element={<ExerciseThreadPage />} />
+            <Route path="/atleti/:athleteId/check/:checkId" element={<CheckReviewPage />} />
             <Route path="/atleti/:athleteId/scheda" element={<ProgramsPage />} />
             <Route path="/atleti/:athleteId/scheda/nuova" element={<NewProgramPage mode="manual" />} />
             <Route path="/atleti/:athleteId/scheda/importa" element={<NewProgramPage mode="pdf" />} />
             <Route path="/atleti/:athleteId/scheda/:programId/modifica" element={<EditProgramPage />} />
           </>
         )}
-        <Route path="/login" element={<Navigate to={coach ? '/atleti' : '/'} replace />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/login" element={<Navigate to={home} replace />} />
+        <Route path="*" element={<Navigate to={home} replace />} />
       </Routes>
-      {!inSession && (
-        <>
-          <p style={{ textAlign: 'center' }}><Link to="/account" className="muted">Account</Link></p>
-          <TabBar />
-        </>
-      )}
+      {!inSession && <TabBar />}
     </div>
   );
 }
