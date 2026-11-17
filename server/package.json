@@ -1,0 +1,39 @@
+{
+  "name": "@palestra/server",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --env-file-if-exists=../.env src/main.ts",
+    "build": "tsup src/main.ts src/cli.ts --format esm --target node22 --out-dir dist --clean",
+    "start": "node --env-file-if-exists=../.env dist/main.js",
+    "migrate": "tsx --env-file-if-exists=../.env src/cli.ts migrate",
+    "seed:demo": "tsx --env-file-if-exists=../.env src/cli.ts seed-demo",
+    "create-coach": "tsx --env-file-if-exists=../.env src/cli.ts create-coach",
+    "purge-demo": "tsx --env-file-if-exists=../.env src/cli.ts purge-demo",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.5",
+    "@fastify/helmet": "^13.2.0",
+    "@fastify/multipart": "^10.1.9",
+    "@fastify/rate-limit": "^11.2.2",
+    "@fastify/static": "^10.1.11",
+    "fastify": "^5.12.8",
+    "nodemailer": "^10.6.0",
+    "pdfjs-dist": "^4.10.38",
+    "pg": "^8.23.1",
+    "sharp": "^0.35.5",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
+    "tsup": "^9.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "5.9",
+    "vitest": "^3.2.7"
+  }
+}

@@ -1,0 +1,136 @@
+<div id="ap-coach" class="viz-dotted-background">
+  <article class="phone" aria-label="App Palestra, area coach">
+    <header><span class="brand">APP PALESTRA / COACH</span><h2>Atleti</h2></header>
+    <section data-list>
+      <button class="primary" type="button" data-invite>+ Invita atleta</button>
+      <p data-invite-status role="status" hidden>Qui il coach genera l’invito personale. Questa è una prova con profili dimostrativi.</p>
+      <div class="roster">
+        <button type="button" data-athlete="0"><span class="initials">MR</span><span><strong>Marco R.</strong><small>Gambe · 17 nov</small></span><span class="check">Check da vedere</span></button>
+        <button type="button" data-athlete="1"><span class="initials">LB</span><span><strong>Luca B.</strong><small>Parte alta · 16 nov</small></span><span aria-hidden="true">›</span></button>
+      </div>
+    </section>
+    <section data-profile hidden>
+      <button type="button" class="quiet" data-back>‹ Tutti gli atleti</button>
+      <div class="profile-head"><h3 data-name></h3><span data-summary></span></div>
+      <div class="tabs" aria-label="Profilo atleta">
+        <button type="button" data-view="scheme">Scheda</button>
+        <button type="button" data-view="workout">Allenamenti</button>
+        <button type="button" data-view="check">Check</button>
+      </div>
+      <div data-panel></div>
+      <details class="athlete-preview">
+        <summary>Come lo vede l’atleta</summary>
+        <p data-athlete-preview></p>
+      </details>
+    </section>
+  </article>
+</div>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&display=swap');
+#ap-coach{padding:14px 5px}
+#ap-coach .phone{--bg:#161317;--panel:#231e24;--ink:#fff3f5;--muted:#cbbdc4;--line:#443740;--red:#ff5065;--rose:#ff9eaa;max-width:402px;margin:auto;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:24px;overflow:hidden;font:500 13px/1.4 Inter,system-ui,sans-serif}
+#ap-coach *{box-sizing:border-box}
+#ap-coach [hidden]{display:none!important}
+#ap-coach header{background:linear-gradient(130deg,#3d242d,var(--bg) 82%);padding:17px 16px 11px}
+#ap-coach section{padding:0 15px 15px}
+#ap-coach h2,#ap-coach h3{font:700 42px/.95 "Barlow Condensed",sans-serif;text-transform:uppercase;color:var(--ink);margin:7px 0}
+#ap-coach h3{font-size:34px}
+#ap-coach p{margin:5px 0 0}
+#ap-coach small,#ap-coach .brand,#ap-coach [data-summary]{font-size:11px;color:var(--muted)}
+#ap-coach .brand{letter-spacing:.11em}
+#ap-coach button,#ap-coach select,#ap-coach input,#ap-coach textarea{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;min-height:44px;font:600 13px Inter,system-ui,sans-serif;padding:6px 8px}
+#ap-coach .primary{background:var(--red);color:#1a080e;border-color:var(--red);width:100%}
+#ap-coach .quiet{background:transparent;border-color:transparent;color:var(--rose);padding-left:0}
+#ap-coach .roster{display:grid;gap:7px;margin-top:10px}
+#ap-coach .roster button{min-width:0;display:grid;grid-template-columns:36px minmax(0,1fr) auto;text-align:left;align-items:center;gap:8px;min-height:60px}
+#ap-coach .roster small{display:block}
+#ap-coach .initials{border-radius:8px;background:#472731;color:var(--rose);min-height:36px;display:grid;place-items:center}
+#ap-coach .check{color:var(--rose);font-size:11px}
+#ap-coach .profile-head{margin:0 0 10px}
+#ap-coach .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;margin-bottom:9px}
+#ap-coach .tabs button{padding:4px 1px}
+#ap-coach button[aria-pressed="true"]{background:#452731;color:var(--rose);border-color:#72404d}
+#ap-coach .panel-card{padding:11px;border:1px solid var(--line);background:var(--panel);border-radius:9px;margin-bottom:8px}
+#ap-coach .row{display:flex;justify-content:space-between;gap:6px;align-items:center}
+#ap-coach .line{border-top:1px solid var(--line);padding-top:7px;margin-top:7px}
+#ap-coach form{display:grid;gap:7px}
+#ap-coach label{font-size:11px;color:var(--muted)}
+#ap-coach select,#ap-coach textarea,#ap-coach input{display:block;width:100%;color-scheme:dark;font-size:16px;margin-top:3px}
+#ap-coach .dates{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+#ap-coach .athlete-preview{margin-top:10px;color:var(--muted)}
+#ap-coach summary{min-height:44px;padding:10px 0;color:var(--rose)}
+#ap-coach [role="status"]{color:var(--rose)}
+</style>
+<script>
+{
+  const root=document.getElementById('ap-coach');
+  const athletes=[
+    {name:'Marco R.',program:'Massa · 5 giorni',period:'3 nov – 15 dic',session:'Gambe · 17 nov',exercise:'Pendulum Squat',sets:['60 kg × 7','65 kg × 5'],weight:'75,0 kg',waist:'85 cm',shared:true,feedback:{}},
+    {name:'Luca B.',program:'Upper / Lower · 4 giorni',period:'9 nov – 21 dic',session:'Parte alta · 16 nov',exercise:'Panca inclinata',sets:['50 kg × 8','52,5 kg × 6'],weight:'71,2 kg',waist:'82 cm',shared:false,feedback:{}}
+  ];
+  const list=root.querySelector('[data-list]');
+  const profile=root.querySelector('[data-profile]');
+  const panel=root.querySelector('[data-panel]');
+  const preview=root.querySelector('[data-athlete-preview]');
+  const inviteStatus=root.querySelector('[data-invite-status]');
+  const viewButtons=[...root.querySelectorAll('[data-view]')];
+  let index=0, view='workout', editing=false;
+  const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const fmt=new Intl.DateTimeFormat('it-IT',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'});
+  function render() {
+    const a=athletes[index];
+    root.querySelector('[data-name]').textContent=a.name;
+    root.querySelector('[data-summary]').textContent=a.program+' · '+a.period;
+    viewButtons.forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.view===view)));
+    if(view==='scheme') {
+      panel.innerHTML='<div class="panel-card"><strong>Scheda assegnata</strong><p>'+esc(a.program)+'</p><small>'+esc(a.period)+'</small></div>'+
+        (editing?'<form data-form="assign"><label>Scegli scheda<select name="program"><option>Massa · 5 giorni</option><option>Upper / Lower · 4 giorni</option><option>Full body · 3 giorni</option></select></label><div class="dates"><label>Inizio<input type="date" name="from" required></label><label>Fine<input type="date" name="to" required></label></div><p role="status" data-error hidden></p><button class="primary" type="submit">Conferma assegnazione</button></form>':'<button class="primary" type="button" data-assign>Assegna scheda</button>');
+      preview.textContent='Oggi · '+a.program+' · '+a.period;
+      return;
+    }
+    const check=view==='check';
+    const subject=check?'Check fisico':a.exercise;
+    panel.innerHTML=(check?'<div class="panel-card"><strong>Ultimo check · 15 nov</strong><p>Peso '+a.weight+' · Addome '+a.waist+'</p><small>'+ (a.shared?'Foto condivise con il coach · esempio':'Foto private dell’atleta')+'</small></div>':
+      '<div class="panel-card"><div class="row"><strong>Ultimo allenamento</strong><small>'+a.session+'</small></div><p class="line"><strong>'+a.exercise+'</strong></p>'+a.sets.map((set,i)=>'<p class="row"><small>Serie '+(i+1)+'</small><strong>'+set+'</strong></p>').join('')+'</div>')+
+      '<form data-form="feedback"><label>Feedback · '+subject+'<textarea name="note" rows="2" required placeholder="Scrivi un’indicazione…"></textarea></label><button class="primary" type="submit">Salva feedback di prova</button></form>'+
+      (a.feedback[view]?'<p role="status">Feedback salvato nell’anteprima.</p>':'');
+    preview.textContent=a.feedback[view]?(check?'Check fisico':'Sotto «Ultima volta» · '+a.exercise)+' — '+a.feedback[view]:'Qui compare il tuo feedback dopo il salvataggio.';
+  }
+  root.addEventListener('click',event=>{
+    const button=event.target.closest('button');
+    if(!button) return;
+    if(button.hasAttribute('data-invite')) {inviteStatus.hidden=!inviteStatus.hidden;return;}
+    if(button.hasAttribute('data-back')) {profile.hidden=true;list.hidden=false;return;}
+    if(button.dataset.athlete!==undefined) {
+      index=Number(button.dataset.athlete);view='workout';editing=false;
+      list.hidden=true;profile.hidden=false;
+    } else if(button.dataset.view) {view=button.dataset.view;editing=false;}
+    else if(button.hasAttribute('data-assign')) {editing=true;}
+    else return;
+    render();
+  });
+  root.addEventListener('submit',event=>{
+    const form=event.target;
+    event.preventDefault();
+    const values=new FormData(form);
+    const a=athletes[index];
+    if(form.dataset.form==='assign') {
+      const from=values.get('from'),to=values.get('to');
+      if(to<from) {
+        const error=form.querySelector('[data-error]');
+        error.textContent='La data finale deve essere uguale o successiva a quella iniziale.';
+        error.hidden=false;
+        return;
+      }
+      a.program=values.get('program');
+      a.period=fmt.format(new Date(from))+' – '+fmt.format(new Date(to));
+      editing=false;
+    } else {
+      const note=String(values.get('note')).trim();
+      if(!note) return;
+      a.feedback[view]=note;
+    }
+    render();
+  });
+}
+</script>
