@@ -1,0 +1,70 @@
+# Render Blueprint — ambiente TEST privato di APP PALESTRA (separato dalla futura produzione).
+# Crea: 1 web service Docker con disco persistente + 1 PostgreSQL gestito, regione Francoforte (UE).
+# Nessun segreto qui: i valori "sync: false" si inseriscono a mano nel pannello Render al primo avvio.
+# Produzione futura: copiare questo file cambiando nomi (…-prod), branch, piani e chiavi. Mai condividere DB, disco o chiavi.
+services:
+  - type: web
+    name: app-palestra-test
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    branch: claude/peaceful-archimedes-lzmfeq
+    region: frankfurt
+    plan: starter
+    autoDeploy: false            # in TEST si pubblica a mano, dopo i test
+    healthCheckPath: /api/health
+    disk:
+      name: data
+      mountPath: /data           # foto private + copie locali dei backup cifrati
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: TRUST_PROXY
+        value: "true"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: app-palestra-test-db
+          property: connectionString
+      - key: APP_URL              # es. https://app-palestra-test.onrender.com (o dominio test.*)
+        sync: false
+      - key: SESSION_DAYS
+        value: "30"
+      - key: INVITE_DAYS
+        value: "7"
+      - key: SMTP_URL             # facoltativo in TEST: senza SMTP si usa il link di recupero generato dal coach
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+      # --- backup giornaliero cifrato (vedi docs/DEPLOY_TEST.md) ---
+      - key: BACKUP_SCHEDULE_ENABLED
+        value: "true"
+      - key: BACKUP_HOUR_UTC
+        value: "2"
+      - key: BACKUP_ENV
+        value: test
+      - key: BACKUP_KEEP_LOCAL
+        value: "7"
+      - key: BACKUP_AGE_RECIPIENT  # chiave PUBBLICA age (age1…); la privata resta offline, mai su Render
+        sync: false
+      - key: BACKUP_REMOTE         # es. r2:app-palestra-backups/test
+        sync: false
+      - key: RCLONE_CONFIG_R2_TYPE
+        value: s3
+      - key: RCLONE_CONFIG_R2_PROVIDER
+        value: Cloudflare
+      - key: RCLONE_CONFIG_R2_ENDPOINT   # https://<account-id>.r2.cloudflarestorage.com
+        sync: false
+      - key: RCLONE_CONFIG_R2_ACCESS_KEY_ID
+        sync: false
+      - key: RCLONE_CONFIG_R2_SECRET_ACCESS_KEY
+        sync: false
+
+databases:
+  - name: app-palestra-test-db
+    databaseName: palestra_test
+    plan: basic-256mb
+    region: frankfurt
+    postgresMajorVersion: "16"
+    ipAllowList: []               # nessun accesso da Internet: solo dalla rete privata di Render
