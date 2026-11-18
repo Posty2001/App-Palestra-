@@ -13,7 +13,7 @@ import { hashToken } from './lib/crypto.js';
 import { HttpError, unauthorized } from './lib/errors.js';
 import type { Viewer } from './services/access.js';
 import { createMailer, type Mailer } from './services/mailer.js';
-import { FsStorage, type PrivateStorage } from './services/storage.js';
+import { DbStorage, FsStorage, type PrivateStorage } from './services/storage.js';
 import { authRoutes } from './routes/auth.js';
 import { coachRoutes } from './routes/coach.js';
 import { programRoutes } from './routes/programs.js';
@@ -54,7 +54,7 @@ export async function buildApp(deps: AppDeps): Promise<FastifyInstance> {
     trustProxy: config.TRUST_PROXY,
     bodyLimit: 1024 * 1024,
   });
-  const storage = deps.storage ?? new FsStorage(path.resolve(config.STORAGE_DIR));
+  const storage = deps.storage ?? (config.STORAGE_DRIVER === 'db' ? new DbStorage(db) : new FsStorage(path.resolve(config.STORAGE_DIR)));
   const mailer = deps.mailer ?? createMailer(config.SMTP_URL, config.MAIL_FROM, app.log, config.NODE_ENV === 'production');
   app.decorate('deps', { config, db, storage, mailer });
   app.decorateRequest('viewer', null);

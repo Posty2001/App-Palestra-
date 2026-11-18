@@ -1,5 +1,7 @@
 # APP PALESTRA 2.0 — piano per l'ambiente TEST privato
 
+> **Annullato (18/11/2026):** su richiesta il budget è 0 €. Il piano valido è [`DEPLOY_FREE.md`](DEPLOY_FREE.md). Restano validi qui i §8 (installazione PWA) e §9 (checklist Safari iOS) e la descrizione degli script di backup.
+
 Stato: **proposta da approvare.** Non è stato acquistato né creato alcun servizio. Nessun dato di atleti reali.
 I prezzi sono stime basate su listini noti; vanno **riverificati sulle pagine ufficiali** prima dell'acquisto, perché cambiano spesso.
 

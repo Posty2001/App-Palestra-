@@ -19,12 +19,12 @@ export interface Ctx {
   storageDir: string;
 }
 
-export async function setup(): Promise<Ctx> {
+export async function setup(opts: { storageDriver?: 'fs' | 'db' } = {}): Promise<Ctx> {
   const url = process.env.TEST_DATABASE_URL;
   if (!url) throw new Error('TEST_DATABASE_URL non impostata (vedi .env.example)');
   if (!/test/i.test(url)) throw new Error('Per sicurezza TEST_DATABASE_URL deve contenere "test"');
   const storageDir = await mkdtemp(path.join(os.tmpdir(), 'palestra-test-'));
-  const config = loadConfig({ ...process.env, NODE_ENV: 'test', DATABASE_URL: url, STORAGE_DIR: storageDir, APP_URL: 'http://app.test' });
+  const config = loadConfig({ ...process.env, NODE_ENV: 'test', DATABASE_URL: url, STORAGE_DIR: storageDir, APP_URL: 'http://app.test', STORAGE_DRIVER: opts.storageDriver ?? 'fs' });
   const db = createPool(url);
   await db.query('drop schema public cascade; create schema public;');
   await migrate(db, () => undefined);

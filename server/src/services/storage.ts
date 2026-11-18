@@ -42,3 +42,32 @@ export class FsStorage implements PrivateStorage {
     await rm(this.resolve(key), { force: true });
   }
 }
+
+/**
+ * Variante per hosting senza disco persistente (piani gratuiti): i file vivono in PostgreSQL (tabella photo_blobs).
+ * Stesse garanzie di FsStorage: nessun URL pubblico, accesso solo tramite /api/photos/:id con i controlli di sempre.
+ * Vantaggio collaterale: il backup del database include anche le foto.
+ */
+export class DbStorage implements PrivateStorage {
+  constructor(private readonly db: Pick<import('pg').Pool, 'query'>) {}
+
+  async put(data: Buffer): Promise<string> {
+    const id = randomUUID();
+    const key = `${id.slice(0, 2)}/${id}`;
+    await this.db.query('insert into photo_blobs(storage_key, data) values ($1, $2)', [key, data]);
+    return key;
+  }
+
+  async get(key: string): Promise<Buffer> {
+    if (!KEY_RE.test(key)) throw new Error('storage key non valida');
+    const r = await this.db.query<{ data: Buffer }>('select data from photo_blobs where storage_key = $1', [key]);
+    const row = r.rows[0];
+    if (!row) throw Object.assign(new Error('file non trovato'), { code: 'ENOENT' });
+    return row.data;
+  }
+
+  async delete(key: string): Promise<void> {
+    if (!KEY_RE.test(key)) throw new Error('storage key non valida');
+    await this.db.query('delete from photo_blobs where storage_key = $1', [key]);
+  }
+}

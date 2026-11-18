@@ -4,7 +4,9 @@
 # Variabili: DATABASE_URL, STORAGE_DIR, BACKUP_DIR, BACKUP_AGE_RECIPIENT (obbligatorie)
 #            BACKUP_ENV (test|prod), BACKUP_KEEP_LOCAL (default 7), BACKUP_REMOTE (es. r2:bucket/test, facoltativo)
 set -euo pipefail
-: "${DATABASE_URL:?}" "${STORAGE_DIR:?}" "${BACKUP_DIR:?}" "${BACKUP_AGE_RECIPIENT:?serve la chiave pubblica age}"
+: "${DATABASE_URL:?}" "${BACKUP_DIR:?}" "${BACKUP_AGE_RECIPIENT:?serve la chiave pubblica age}"
+DRIVER="${STORAGE_DRIVER:-fs}"   # fs: foto su disco (STORAGE_DIR) · db: foto già dentro il dump
+[ "$DRIVER" = "db" ] || : "${STORAGE_DIR:?}"
 ENVNAME="${BACKUP_ENV:-test}"
 TS=$(date -u +%Y%m%dT%H%M%SZ)
 WORK=$(mktemp -d)
@@ -12,7 +14,7 @@ trap 'rm -rf "$WORK"' EXIT
 umask 077
 mkdir -p "$BACKUP_DIR"
 
-TABLES="users coach_links invites programs program_versions workouts workout_sets exercise_notes exercise_feedback questions body_checks check_photos check_feedback weight_entries"
+TABLES="photo_blobs users coach_links invites programs program_versions workouts workout_sets exercise_notes exercise_feedback questions body_checks check_photos check_feedback weight_entries"
 
 # 1) Database (formato custom, compresso). Prima il DB, poi le foto: una foto caricata nel frattempo
 #    finisce come file "orfano" (innocuo); verify.sh segnala eventuali righe senza file.
@@ -23,13 +25,19 @@ pg_dump --format=custom --no-owner --no-acl --file="$WORK/db.dump" "$DATABASE_UR
 psql "$DATABASE_URL" -Atqc "select storage_key from check_photos order by storage_key" > "$WORK/photo-keys.txt"
 
 # 2) Foto private
-tar -C "$STORAGE_DIR" -cf "$WORK/photos.tar" .
-FILES=$(tar -tf "$WORK/photos.tar" | grep -cv '/$' || true)
+if [ "$DRIVER" = "db" ]; then
+  tar -cf "$WORK/photos.tar" --files-from /dev/null
+  FILES=$(psql "$DATABASE_URL" -Atqc "select count(*) from photo_blobs")
+else
+  tar -C "$STORAGE_DIR" -cf "$WORK/photos.tar" .
+  FILES=$(tar -tf "$WORK/photos.tar" | grep -cv '/$' || true)
+fi
 
 # 3) Manifest e checksum
 cat > "$WORK/manifest.txt" <<MAN
 app=app-palestra
 env=$ENVNAME
+storage_driver=$DRIVER
 created_utc=$TS
 version=${APP_VERSION:-${RENDER_GIT_COMMIT:-unknown}}
 photo_files=$FILES

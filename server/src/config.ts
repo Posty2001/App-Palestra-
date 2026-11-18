@@ -8,6 +8,8 @@ const envSchema = z.object({
   /** URL pubblico dell'app (per i link di invito e recupero). */
   APP_URL: z.string().url().default('http://localhost:5173'),
   STORAGE_DIR: z.string().default('./storage/photos'),
+  /** fs = disco persistente (predefinito); db = foto in PostgreSQL, per hosting gratuiti senza disco. */
+  STORAGE_DRIVER: z.enum(['fs', 'db']).default('fs'),
   /** Imposta a "true" dietro HTTPS (produzione): cookie Secure. */
   COOKIE_SECURE: z.enum(['true', 'false']).default('false').transform((v) => v === 'true'),
   SESSION_DAYS: z.coerce.number().int().min(1).max(365).default(60),
