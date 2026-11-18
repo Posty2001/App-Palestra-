@@ -397,5 +397,4 @@ La preferenza di default è sempre senza foto, e non si ricorda una scelta «con
 1. Approvi l'architettura (servizi portati nel browser + adattatore `api()` in fase 1)?
 2. **Autenticità:** confermi la firma ECDSA con abbinamento tramite impronta (consigliata), oppure ti basta la password, accettando che chi la conosce possa creare pacchetti validi?
 3. **Hosting:** Cloudflare Pages (repository privato) oppure GitHub Pages con un repository pubblico separato contenente solo la build?
-4. Posso pubblicare il branch `local-first-v3` (per ora contiene solo questo documento)?
-5. Il branch locale `test-env` (piano Render + Neon, ora superato): lo archivio in un branch separato o lo elimino?
+4. Il branch locale `test-env` (piano Render + Neon, ora superato): lo archivio in un branch separato o lo elimino?
