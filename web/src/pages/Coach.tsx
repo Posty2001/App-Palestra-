@@ -1,3 +1,4 @@
+import { LocalPhoto } from '../components/LocalPhoto';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import {
@@ -607,7 +608,7 @@ export function CheckReviewPage() {
           <>
             {prev ? <CompareView checks={sorted} initialA={prev.id} initialB={check.id} /> : (
               <div className="card stack">
-                {check.photos.length ? <div className="photos3" data-testid="coach-check-photos">{check.photos.map((p) => <img key={p.id} className="photo" src={`/api/photos/${p.id}`} alt={p.pose} />)}</div>
+                {check.photos.length ? <div className="photos3" data-testid="coach-check-photos">{check.photos.map((p) => <LocalPhoto key={p.id} className="photo" photoId={p.id} alt={p.pose} />)}</div>
                   : <p className="muted">{check.photoCount ? 'L\'atleta non ha condiviso le foto di questo check.' : 'Nessuna foto.'}</p>}
                 <table><tbody>{MEASURES.map(([k, l, u]) => <tr key={k}><td className="muted">{l}</td><td style={{ textAlign: 'right' }}>{(check[k] as number | null)?.toLocaleString('it-IT') ?? '—'}{check[k] !== null ? u : ''}</td></tr>)}</tbody></table>
               </div>
@@ -616,7 +617,7 @@ export function CheckReviewPage() {
             {prev && check.photos.length > 0 && (
               <section className="stack" data-testid="coach-check-photos">
                 <p className="cap">Foto del check · condivise dall'atleta</p>
-                <div className="photos3">{check.photos.map((p) => <img key={p.id} className="photo" src={`/api/photos/${p.id}`} alt={p.pose} loading="lazy" />)}</div>
+                <div className="photos3">{check.photos.map((p) => <LocalPhoto key={p.id} className="photo" photoId={p.id} alt={p.pose} loading="lazy" />)}</div>
               </section>
             )}
             {check.note && <p className="sub">«{check.note}»</p>}

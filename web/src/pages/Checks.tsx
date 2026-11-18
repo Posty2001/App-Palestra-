@@ -1,3 +1,4 @@
+import { LocalPhoto } from '../components/LocalPhoto';
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { POSE_LABEL, POSES, type CheckDto, type Pose } from '@palestra/shared';
@@ -77,7 +78,7 @@ export function CompareView({ checks, initialA, initialB }: { checks: CheckDto[]
         {[a, b].map((c, i) => {
           const ph = c.photos.find((p) => p.pose === pose);
           return ph ? (
-            <img key={i} className="photo" src={`/api/photos/${ph.id}`} alt={`${POSE_LABEL[pose]} ${fmtDate(c.checkDate)}`} loading="lazy" />
+            <LocalPhoto key={i} className="photo" photoId={ph.id} alt={`${POSE_LABEL[pose]} ${fmtDate(c.checkDate)}`} loading="lazy" />
           ) : (
             <div key={i} className="photo-empty">{c.photoCount ? 'Foto non condivisa' : 'Nessuna foto'}<br />{fmtShort(c.checkDate)}</div>
           );
@@ -250,7 +251,7 @@ export function CheckDetailPage() {
             const ph = c.photos.find((x) => x.pose === p);
             return (
               <div key={p} className="stack" style={{ gap: 4 }}>
-                {ph ? <img className="photo" src={`/api/photos/${ph.id}`} alt={POSE_LABEL[p]} /> : <div className="photo-empty">{POSE_LABEL[p]}</div>}
+                {ph ? <LocalPhoto className="photo" photoId={ph.id} alt={POSE_LABEL[p]} /> : <div className="photo-empty">{POSE_LABEL[p]}</div>}
                 {ph && <button className="quiet small-btn" onClick={() => void run(async () => setData(await del<CheckDto>(`/checks/${c.id}/photos/${p}`)))} data-testid={`delete-photo-${p}`}>Elimina</button>}
               </div>
             );

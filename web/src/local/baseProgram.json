@@ -1,0 +1,646 @@
+{
+ "name": "Scheda 5 giorni",
+ "content": {
+  "days": [
+   {
+    "id": "f5d32e68-45b9-4ca7-a57e-e2a2fe065bab",
+    "name": "Giorno 1",
+    "exercises": [
+     {
+      "id": "634b54b7-cc9d-4835-8b8b-d7f1360a38d1",
+      "name": "T Bar Prono + Kelso shrugs alla fine",
+      "sets": 3,
+      "setsRaw": "3 (2 top set + 1 back off del 20%)",
+      "repsRaw": "7-5 (top set); 10 reps (back off)",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": 2,
+      "backoffSets": 1,
+      "backoffPct": 20,
+      "topReps": "7-5",
+      "backoffReps": "10",
+      "notes": ""
+     },
+     {
+      "id": "ac63ae87-ea56-4d7b-9044-aa4a2ba81664",
+      "name": "Panca 45° S.M.",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "9c1f962c-f838-4318-b7c2-fbc0ecada142",
+      "name": "Iliac",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "8-6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "922f44e7-5fb4-435b-b81f-05dfedc0724c",
+      "name": "Pec fly",
+      "sets": 3,
+      "setsRaw": "3 (2 top + back off 20%)",
+      "repsRaw": "7-5 (top set); 10 (back off)",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": 2,
+      "backoffSets": 1,
+      "backoffPct": 20,
+      "topReps": "7-5",
+      "backoffReps": "10",
+      "notes": ""
+     },
+     {
+      "id": "bfe0a6ba-75ef-4ead-bcf8-8a1ccbd56777",
+      "name": "Pulley trazy bar",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "d10c81fb-2f6c-4e9d-a48d-1dc6c481e8ad",
+      "name": "Chest press",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "7-5",
+      "restRaw": "3’-4’",
+      "restSeconds": {
+       "min": 180,
+       "max": 240
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "d1c3c521-944b-40cb-a1f3-016048c0fb16",
+      "name": "Pulley stretto",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "10/6",
+      "restRaw": "—",
+      "restSeconds": null,
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     }
+    ]
+   },
+   {
+    "id": "8f9b029b-5d40-4955-9a6d-39c1657e310c",
+    "name": "Giorno 2",
+    "exercises": [
+     {
+      "id": "98518edb-86a3-472f-ab9e-f0d4a8a771ba",
+      "name": "Vulken Push Down su panca",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "e29a3727-8356-472e-82f6-81aa7aa941cd",
+      "name": "Bayesian curl",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "4e75f833-3c07-46be-8d94-bc7cf19bbba1",
+      "name": "Overhead extension con triangolo",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "10/6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "9f2262a1-5554-4562-97fa-27bb3f03cf16",
+      "name": "Hammer curl con gomito in appoggio con manubri",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "8/6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "bd76a43f-4c38-4995-9e8d-0e7429c30338",
+      "name": "Shoulder Press prona",
+      "sets": 3,
+      "setsRaw": "3 (2 top set + back off)",
+      "repsRaw": "7-5; 10 (back off)",
+      "restRaw": "3’-4’",
+      "restSeconds": {
+       "min": 180,
+       "max": 240
+      },
+      "topSets": 2,
+      "backoffSets": 1,
+      "backoffPct": null,
+      "topReps": "7-5",
+      "backoffReps": "10",
+      "notes": ""
+     },
+     {
+      "id": "9a426612-79ef-40be-8fec-154c456f31eb",
+      "name": "Lateral raises con cavigliera altezza mano",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "aa047e2f-b07a-4197-b821-1037cb79f558",
+      "name": "Tirate per deltoide posteriore con cavigliera",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "10/6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "87616326-a077-44b9-956e-93b7e19791ff",
+      "name": "Lateral raises machine / alzate laterali con manubri",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "8/6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     }
+    ]
+   },
+   {
+    "id": "718234bf-fd5a-44f1-84d5-2415ad269829",
+    "name": "Giorno 3",
+    "exercises": [
+     {
+      "id": "7b351179-b080-4e34-9119-060f7507efd4",
+      "name": "Adductor machine",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "ca82c410-50f2-447d-99a7-06ffba5b63b9",
+      "name": "Leg curl seduto",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "bdbf0f94-8d72-4fce-aab6-11f0aae4d984",
+      "name": "Pendulum Squat",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "7/5",
+      "restRaw": "4’-5’",
+      "restSeconds": {
+       "min": 240,
+       "max": 300
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "cded0104-906b-46cf-8c7a-020900289f2b",
+      "name": "Leg extension singola",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "339d0091-3f97-47a0-b1ce-f38cd47558bc",
+      "name": "Leg curl sdraiato",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "8/6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "54597858-e405-42bb-9929-83af406778a9",
+      "name": "Calf machine",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     }
+    ]
+   },
+   {
+    "id": "d639831a-30e2-4ae6-aaed-9a302071a4bb",
+    "name": "Giorno 4",
+    "exercises": [
+     {
+      "id": "984fb8b1-3644-4130-80fc-1b996e51cc50",
+      "name": "T Bar Prono + Kelso shrugs alla fine",
+      "sets": 3,
+      "setsRaw": "3 (2 top set + back off 20%)",
+      "repsRaw": "7-5; 10 (back off)",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": 2,
+      "backoffSets": 1,
+      "backoffPct": 20,
+      "topReps": "7-5",
+      "backoffReps": "10",
+      "notes": ""
+     },
+     {
+      "id": "40b2f2c3-7bd3-4bc4-b4ad-6fdcf6ecec84",
+      "name": "Incline chest press",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "8-5",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "0cf6f750-b297-4111-972e-bb867f6a0ce2",
+      "name": "Iliac lat pulldown",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "10/6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "71fa0142-979f-49e7-9310-5c35f0f86004",
+      "name": "Overhead extension",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "4f0722d1-9e14-447b-9417-c4dac31012bd",
+      "name": "Bayesian Curl",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "1f187ab1-328d-4419-83d8-fd7a4f4bec54",
+      "name": "Lateral Raises al cavo (1ª variante)",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10/6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "4f1e5021-8d59-4bd9-a264-251f76e1ffc3",
+      "name": "Tirate posteriori con cavigliera",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "10/6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "69240fc0-0101-4d10-818a-cc4fd1c0e47c",
+      "name": "Alzate laterali con manubri / Raises machine (2ª variante)",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "8/6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     }
+    ]
+   },
+   {
+    "id": "0da1f89f-9639-4638-b41b-9641e89c49b8",
+    "name": "Giorno 5",
+    "exercises": [
+     {
+      "id": "6da614cb-711a-47ff-8525-248c72e15173",
+      "name": "Adductor machine",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10/6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "c42150ae-a131-4291-ae2d-1618fe84650e",
+      "name": "Calf machine",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10/6",
+      "restRaw": "2’-3’",
+      "restSeconds": {
+       "min": 120,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "18d096bd-32ae-4ec7-a641-36de175c2ab9",
+      "name": "Banded Leg press 45°",
+      "sets": 2,
+      "setsRaw": "2",
+      "repsRaw": "8/6",
+      "restRaw": "4’",
+      "restSeconds": {
+       "min": 240,
+       "max": 240
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "92e45655-f835-46c9-9f16-f394034ac267",
+      "name": "Leg extension singola",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10/6",
+      "restRaw": "3’-4’",
+      "restSeconds": {
+       "min": 180,
+       "max": 240
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     },
+     {
+      "id": "9b05db9f-e40b-4181-96bd-9630c2044f7a",
+      "name": "Leg curl seduto",
+      "sets": 3,
+      "setsRaw": "3",
+      "repsRaw": "10-6",
+      "restRaw": "3’",
+      "restSeconds": {
+       "min": 180,
+       "max": 180
+      },
+      "topSets": null,
+      "backoffSets": null,
+      "backoffPct": null,
+      "topReps": null,
+      "backoffReps": null,
+      "notes": ""
+     }
+    ]
+   }
+  ]
+ }
+}

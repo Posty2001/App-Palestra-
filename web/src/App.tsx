@@ -2,7 +2,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 import { useAuth } from './lib/auth';
 import { getLastMode } from './lib/prefs';
 import { TabBar } from './components/ui';
-import { ForgotPage, InvitePage, LoginPage, ResetPage } from './pages/Auth';
+import { WelcomePage } from './pages/Welcome';
 import { TodayPage } from './pages/Today';
 import { WorkoutPage } from './pages/Workout';
 import { CoachProgramsPage, EditProgramPage, NewProgramPage, ProgramsPage } from './pages/Programs';
@@ -19,11 +19,8 @@ export function App() {
   if (!user) {
     return (
       <Routes>
-        <Route path="/invito" element={<InvitePage />} />
-        <Route path="/recupera" element={<ForgotPage />} />
-        <Route path="/reimposta-password" element={<ResetPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="/benvenuto" element={<WelcomePage />} />
+        <Route path="*" element={<Navigate to="/benvenuto" replace />} />
       </Routes>
     );
   }
@@ -46,7 +43,6 @@ export function App() {
         <Route path="/check/:checkId" element={<CheckDetailPage />} />
         <Route path="/check/:checkId/modifica" element={<CheckFormPage />} />
         <Route path="/account" element={<AccountPage />} />
-        <Route path="/invito" element={<InvitePage />} />
         {/* Area coach */}
         {coach && (
           <>
@@ -67,7 +63,7 @@ export function App() {
             <Route path="/atleti/:athleteId/scheda/:programId/modifica" element={<EditProgramPage />} />
           </>
         )}
-        <Route path="/login" element={<Navigate to={home} replace />} />
+        <Route path="/benvenuto" element={<Navigate to={home} replace />} />
         <Route path="*" element={<Navigate to={home} replace />} />
       </Routes>
       {!inSession && <TabBar />}

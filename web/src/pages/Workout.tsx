@@ -4,16 +4,15 @@ import {
   defaultRestSeconds, exerciseKey, formatRest, plannedSetCount, workSetLabel,
   type ExerciseContextDto, type ExerciseSpec, type SetDto, type TodayBundleDto,
 } from '@palestra/shared';
-import { errorMessage, uuid } from '../lib/api';
+import { errorMessage, get, uuid } from '../lib/api';
 import { useUser } from '../lib/auth';
 import { fmtDuration, fmtSet, fmtShort, parseNum } from '../lib/format';
-import { kvGet, kvSet } from '../lib/idb';
 import { addStep, getStep, setStep, STEP_OPTIONS, type Step } from '../lib/prefs';
 import { adjust, pause, remainingSec, REST_PRESETS, resume, setDuration, type RestTimer } from '../lib/rest';
 import { beep, unlockAudio } from '../lib/sound';
 import { enqueue } from '../lib/sync';
 import {
-  bundleKey, deleteSet, discardWorkout, finishWorkout, saveSet, setExerciseState, setRest, slotExercise, useActiveWorkout,
+  deleteSet, discardWorkout, finishWorkout, saveSet, setExerciseState, setRest, slotExercise, useActiveWorkout,
   type LocalWorkout,
 } from '../lib/workoutStore';
 import { ErrorText, Sheet, SyncBadge } from '../components/ui';
@@ -59,17 +58,13 @@ export function WorkoutPage() {
   const cardRefs = useRef(new Map<string, HTMLElement>());
 
   useEffect(() => {
-    void kvGet<TodayBundleDto>(bundleKey(user.id)).then((b) => setContexts(b?.contexts ?? {}));
+    void get<TodayBundleDto>('/bundle').then((b) => setContexts(b.contexts));
   }, [user.id]);
 
   const updateContext = useCallback(async (key: string, patch: Partial<ExerciseContextDto>) => {
+    // Il dato è già nell'archivio (scritto dalla chiamata precedente): qui si aggiorna solo la vista.
     setContexts((c) => ({ ...c, [key]: { ...(c[key] ?? emptyCtx(key)), ...patch } }));
-    const b = await kvGet<TodayBundleDto>(bundleKey(user.id));
-    if (b) {
-      b.contexts[key] = { ...(b.contexts[key] ?? emptyCtx(key)), ...patch };
-      await kvSet(bundleKey(user.id), b);
-    }
-  }, [user.id]);
+  }, []);
 
   // ---- stato derivato per esercizio ----
   const info = useMemo(() => {
@@ -433,7 +428,7 @@ function ActionsSheet({ open, onClose, workout, ex, exIndex, userId, ctx, hasCoa
           e.preventDefault();
           const v = text.trim();
           void enqueue({ method: 'PUT', path: `/exercise-notes/${encodeURIComponent(eff.key)}`, body: { machineSetup: v }, workoutId: null })
-            .then(() => updateContext(eff.key, { machineSetup: v || null })).then(close);
+            .then(() => updateContext(eff.key, { machineSetup: v || null })).then(close, () => undefined /* errore mostrato dall'indicatore di salvataggio */);
         }}>
           <label>Assetto macchina (es. sedile 4, schienale 2)<textarea value={text} maxLength={300} onChange={(e) => setText(e.target.value)} autoFocus /></label>
           <button className="primary">Salva assetto</button>
@@ -481,6 +476,7 @@ function ChatSheet({ open, onClose, name, exKey, ctx, hasCoach, coachName, athle
   updateContext: (key: string, patch: Partial<ExerciseContextDto>) => Promise<void>;
 }) {
   const [text, setText] = useState('');
+  const [sendError, setSendError] = useState<string | null>(null);
   const items = [
     ...(ctx?.questions ?? []).flatMap((q) => [
       { id: `q${q.id}`, at: q.createdAt, who: 'out' as const, meta: `Tu · ${fmtShort(q.createdAt)}`, body: q.body, pending: !q.answer },
@@ -493,7 +489,13 @@ function ChatSheet({ open, onClose, name, exKey, ctx, hasCoach, coachName, athle
     const body = text.trim();
     if (!body) return;
     const id = uuid();
-    await enqueue({ method: 'PUT', path: `/questions/${id}`, body: { exerciseName: name, body }, workoutId: null });
+    try {
+      await enqueue({ method: 'PUT', path: `/questions/${id}`, body: { exerciseName: name, body }, workoutId: null });
+      setSendError(null);
+    } catch (err) {
+      setSendError(errorMessage(err));
+      return;
+    }
     await updateContext(exKey, { questions: [...(ctx?.questions ?? []), { id, athleteId, exerciseKey: exKey, exerciseName: name, body, answer: null, answeredAt: null, createdAt: new Date().toISOString(), context: null }] });
     setText('');
   }
@@ -510,10 +512,13 @@ function ChatSheet({ open, onClose, name, exKey, ctx, hasCoach, coachName, athle
         ))}
       </div>
       {hasCoach ? (
+        <>
+        <ErrorText error={sendError} />
         <form className="composer" onSubmit={(e) => { e.preventDefault(); void send(); }}>
           <textarea value={text} maxLength={500} placeholder="Domanda breve al coach" aria-label={`Domanda breve su ${name}`} onChange={(e) => setText(e.target.value)} />
           <button className="primary" style={{ width: 'auto' }} disabled={!text.trim()}>Invia</button>
         </form>
+        </>
       ) : <p className="muted">Collegati a un coach per fare domande.</p>}
     </Sheet>
   );

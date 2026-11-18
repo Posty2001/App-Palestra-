@@ -1,54 +1,18 @@
-export class ApiError extends Error {
-  constructor(public readonly status: number, public readonly code: string, message: string) {
-    super(message);
-  }
-}
+import { ApiError, NetworkError } from './errors';
+import { handle } from '../local/router';
 
-/** Errore di rete (offline, timeout): l'operazione può essere ritentata. */
-export class NetworkError extends Error {}
+/**
+ * 3.0: nessun server. `api()` mantiene la firma della 2.0 ma ogni richiesta è servita dal router locale
+ * (IndexedDB sul dispositivo). Le schermate non sanno che il server non esiste più.
+ */
+export { ApiError, NetworkError };
 
 type Method = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
 
-let onUnauthorized: (() => void) | null = null;
-export function setUnauthorizedHandler(fn: () => void): void {
-  onUnauthorized = fn;
-}
-
-export async function api<T>(method: Method, path: string, body?: unknown, opts: { timeoutMs?: number; silent401?: boolean } = {}): Promise<T> {
-  const ctrl = new AbortController();
-  const timer = setTimeout(() => ctrl.abort(), opts.timeoutMs ?? 15_000);
-  let res: Response;
-  try {
-    const isForm = body instanceof FormData;
-    res = await fetch(`/api${path}`, {
-      method,
-      credentials: 'same-origin',
-      headers: {
-        'x-requested-with': 'app-palestra',
-        ...(body !== undefined && !isForm ? { 'content-type': 'application/json' } : {}),
-      },
-      body: body === undefined ? undefined : isForm ? body : JSON.stringify(body),
-      signal: ctrl.signal,
-    });
-  } catch {
-    throw new NetworkError('Connessione assente');
-  } finally {
-    clearTimeout(timer);
-  }
-  if (res.status === 204) return undefined as T;
-  let data: unknown = null;
-  try {
-    data = await res.json();
-  } catch {
-    if (!res.ok) throw new ApiError(res.status, 'error', 'Risposta non valida dal server');
-  }
-  if (!res.ok) {
-    const d = (data ?? {}) as { error?: string; message?: string };
-    if (res.status === 401 && !opts.silent401) onUnauthorized?.();
-    if (res.status >= 500 || res.status === 502 || res.status === 503) throw new NetworkError(d.message ?? 'Server non raggiungibile');
-    throw new ApiError(res.status, d.error ?? 'error', d.message ?? 'Errore');
-  }
-  return data as T;
+export async function api<T>(method: Method, path: string, body?: unknown, _opts: { timeoutMs?: number; silent401?: boolean } = {}): Promise<T> {
+  // Clonazione: la pagina non può modificare per errore gli oggetti salvati (come avveniva con la serializzazione HTTP).
+  const input = body instanceof FormData || body instanceof Blob || body === undefined ? body : structuredClone(body);
+  return (await handle(method, path, input)) as T;
 }
 
 export const get = <T>(p: string) => api<T>('GET', p);

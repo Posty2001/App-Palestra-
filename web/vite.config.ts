@@ -23,16 +23,15 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Solo la shell dell'app: i dati passano da IndexedDB, le foto private non vengono mai messe in cache.
-        globPatterns: ['**/*.{js,css,html,svg,woff2}'],
+        // Tutta l'app è precaricata: dopo la prima apertura funziona senza rete. I dati restano in IndexedDB.
+        globPatterns: ['**/*.{js,mjs,css,html,svg,woff2}'],
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//],
         runtimeCaching: [
           { urlPattern: /^https:\/\/fonts\.(googleapis|gstatic)\.com\/.*/, handler: 'CacheFirst', options: { cacheName: 'fonts', expiration: { maxEntries: 20 } } },
         ],
       },
     }),
   ],
-  server: { port: 5173, proxy: { '/api': 'http://127.0.0.1:3000' } },
-  preview: { port: 4173, proxy: { '/api': 'http://127.0.0.1:3000' } },
+  server: { port: 5173 },
+  preview: { port: 4173 },
 });

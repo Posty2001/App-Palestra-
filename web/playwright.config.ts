@@ -1,8 +1,6 @@
-import { existsSync } from 'node:fs';
 import { defineConfig, devices } from '@playwright/test';
 
-if (existsSync('../.env')) process.loadEnvFile('../.env');
-
+/** 3.0: nessun server applicativo. Si prova la build statica servita da `vite preview`, come in produzione. */
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -13,8 +11,8 @@ export default defineConfig({
   use: { baseURL: 'http://127.0.0.1:3100', trace: 'off', screenshot: 'only-on-failure' },
   projects: [{ name: 'iPhone 13', use: { ...devices['iPhone 13'], browserName: 'chromium', locale: 'it-IT', timezoneId: 'Europe/Rome' } }],
   webServer: {
-    command: 'npx tsx ../server/src/e2eServer.ts',
-    url: 'http://127.0.0.1:3100/api/health',
+    command: 'npx vite preview --port 3100 --strictPort --host 127.0.0.1',
+    url: 'http://127.0.0.1:3100/',
     reuseExistingServer: false,
     timeout: 60_000,
     stdout: 'pipe',

@@ -1,68 +1,63 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { UserDto } from '@palestra/shared';
-import { api, NetworkError, post, setUnauthorizedHandler } from './api';
-import { clearLocal, kvGet, kvSet } from './idb';
-import { flush, getSyncState, startSync, stopSync } from './sync';
-import { initWorkoutStore, resetWorkoutStore } from './workoutStore';
+import { get } from './api';
+import { createProfile, loadProfile, updateProfile, type profileInputSchema } from '../local/profile';
+import { initWorkoutStore } from './workoutStore';
+import type { z } from 'zod';
 
+/**
+ * 3.0: nessun account. Il «profilo» è l'identità locale di questa installazione (nome, ruolo, chiavi).
+ * L'interfaccia (useAuth/useUser) resta quella della 2.0 per non toccare le schermate.
+ */
 interface AuthCtx {
   user: UserDto | null;
   loading: boolean;
-  signedIn: (u: UserDto) => Promise<void>;
-  logout: (force?: boolean) => Promise<{ ok: boolean; pending: number }>;
+  /** Errore bloccante dell'archivio del browser (es. navigazione privata senza IndexedDB). */
+  storageError: string | null;
+  create: (input: z.infer<typeof profileInputSchema>) => Promise<void>;
+  update: (patch: { displayName?: string; role?: 'athlete' | 'coach' }) => Promise<void>;
   refresh: () => Promise<void>;
 }
 
 const Ctx = createContext<AuthCtx | null>(null);
-const LAST_USER = 'lastUser';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserDto | null>(null);
   const [loading, setLoading] = useState(true);
-
-  const activate = useCallback(async (u: UserDto) => {
-    await kvSet(LAST_USER, u);
-    await initWorkoutStore(u.id);
-    await startSync(u.id);
-    setUser(u);
-  }, []);
+  const [storageError, setStorageError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
     try {
-      const u = await api<UserDto>('GET', '/auth/me', undefined, { silent401: true });
-      await activate(u);
+      const p = await loadProfile();
+      if (!p) {
+        setUser(null);
+        return;
+      }
+      const u = await get<UserDto>('/auth/me');
+      await initWorkoutStore(u.id);
+      setUser(u);
     } catch (err) {
-      // Offline: si riparte con l'ultimo utente noto per allenarsi senza rete.
-      const last = err instanceof NetworkError ? await kvGet<UserDto>(LAST_USER) : undefined;
-      if (last) await activate(last);
-      else setUser(null);
+      setStorageError(err instanceof Error ? err.message : 'Archivio del dispositivo non disponibile');
     } finally {
       setLoading(false);
     }
-  }, [activate]);
+  }, []);
 
   useEffect(() => {
     void refresh();
-    setUnauthorizedHandler(() => setUser(null));
   }, [refresh]);
 
-  const logout = useCallback(async (force = false) => {
-    await flush();
-    const pending = getSyncState().pending;
-    if (pending > 0 && !force) return { ok: false, pending };
-    try {
-      await post('/auth/logout');
-    } catch {
-      /* anche offline si esce localmente */
-    }
-    stopSync();
-    resetWorkoutStore();
-    await clearLocal();
-    setUser(null);
-    return { ok: true, pending: 0 };
-  }, []);
+  const create = useCallback(async (input: z.infer<typeof profileInputSchema>) => {
+    await createProfile(input);
+    await refresh();
+  }, [refresh]);
 
-  const value = useMemo(() => ({ user, loading, signedIn: activate, logout, refresh }), [user, loading, activate, logout, refresh]);
+  const update = useCallback(async (patch: { displayName?: string; role?: 'athlete' | 'coach' }) => {
+    await updateProfile(patch);
+    await refresh();
+  }, [refresh]);
+
+  const value = useMemo(() => ({ user, loading, storageError, create, update, refresh }), [user, loading, storageError, create, update, refresh]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
@@ -74,6 +69,6 @@ export function useAuth(): AuthCtx {
 
 export function useUser(): UserDto {
   const { user } = useAuth();
-  if (!user) throw new Error('Utente non autenticato');
+  if (!user) throw new Error('Profilo non configurato');
   return user;
 }

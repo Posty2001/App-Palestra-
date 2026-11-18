@@ -18,14 +18,10 @@ export function SyncBadge() {
   const [s, setS] = useState<SyncState | null>(null);
   useEffect(() => subscribeSync(setS), []);
   if (!s) return null;
-  const cls = !s.online ? 'offline' : s.pending > 0 ? 'pending' : '';
-  const text = !s.online
-    ? `Offline${s.pending ? ` · ${s.pending} da inviare` : ''}`
-    : s.pending > 0
-      ? `${s.syncing ? 'Sincronizzo' : 'In attesa'} · ${s.pending}`
-      : 'Sincronizzato';
+  // 3.0: i dati vivono solo su questo dispositivo. L'indicatore segnala se l'ultimo salvataggio è riuscito.
+  const text = s.lastError ? 'Errore di salvataggio' : 'Sul dispositivo';
   return (
-    <span className={`sync ${cls}`} role="status" aria-live="polite" data-testid="sync-status" title={s.lastError ?? undefined}>
+    <span className={`sync ${s.lastError ? 'offline' : ''}`} role="status" aria-live="polite" data-testid="sync-status" title={s.lastError ?? 'Dati salvati solo su questo dispositivo'}>
       <i aria-hidden="true" />
       {text}
     </span>

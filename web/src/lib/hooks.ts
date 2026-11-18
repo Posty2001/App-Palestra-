@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { TodayBundleDto } from '@palestra/shared';
 import { errorMessage, get } from './api';
-import { kvGet, kvSet } from './idb';
 import { todayLocal } from './format';
-import { bundleKey, reconcileActive } from './workoutStore';
-import { flush, pendingOps } from './sync';
 
 export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]): { data: T | undefined; error: string | null; loading: boolean; reload: () => void; setData: (d: T) => void } {
   const [data, setData] = useState<T | undefined>(undefined);
@@ -29,32 +26,16 @@ export function useAsync<T>(fn: () => Promise<T>, deps: unknown[]): { data: T | 
   return { data, error, loading, reload, setData };
 }
 
-/** Pacchetto Oggi: prima la copia locale (immediata e offline), poi il server. */
+/** Pacchetto Oggi: calcolato dall'archivio del dispositivo (sempre disponibile, anche senza rete). */
 export function useBundle(userId: string): { bundle: TodayBundleDto | null; offline: boolean; reload: () => void } {
   const [bundle, setBundle] = useState<TodayBundleDto | null>(null);
-  const [offline, setOffline] = useState(false);
   const [tick, setTick] = useState(0);
   useEffect(() => {
     let alive = true;
-    void (async () => {
-      const cached = await kvGet<TodayBundleDto>(bundleKey(userId));
-      if (cached && alive) setBundle(cached);
-      try {
-        await flush(); // prima si inviano le modifiche locali, poi si legge lo stato aggiornato
-        const fresh = await get<TodayBundleDto>(`/bundle?today=${todayLocal()}`);
-        if ((await pendingOps()).length === 0) await reconcileActive(fresh.activeWorkout);
-        await kvSet(bundleKey(userId), fresh);
-        if (alive) {
-          setBundle(fresh);
-          setOffline(false);
-        }
-      } catch {
-        if (alive) setOffline(true);
-      }
-    })();
+    void get<TodayBundleDto>(`/bundle?today=${todayLocal()}`).then((b) => alive && setBundle(b));
     return () => {
       alive = false;
     };
   }, [userId, tick]);
-  return { bundle, offline, reload: () => setTick((t) => t + 1) };
+  return { bundle, offline: false, reload: () => setTick((t) => t + 1) };
 }

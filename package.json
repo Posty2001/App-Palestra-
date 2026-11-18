@@ -13,7 +13,8 @@
     "seed:demo": "npm run seed:demo -w server",
     "create-coach": "npm run create-coach -w server",
     "typecheck": "npm run typecheck -w shared && npm run typecheck -w server && npm run typecheck -w web",
-    "test": "npm run test -w shared && npm run test -w server",
+    "test": "npm run test -w shared && npm run test -w web",
+    "test:server-v2": "npm run test -w server",
     "test:e2e": "npm run build -w web && npm run test:e2e -w web"
   }
 }
